@@ -1,17 +1,52 @@
 import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
+import axios from "axios";
 
 function App() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-      console.log("Data is :", position.coords);
-    });
+    saveData();
   }, []);
+
+  const saveData = async () => {
+    let payload = {
+      latitude: "",
+      longitude: "",
+      data: "",
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async function (position) {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
+        console.log("Data is :", position.coords);
+
+        payload = {
+          ...payload,
+          latitude: `${position.coords.latitude}`,
+          longitude: `${position.coords.longitude}`,
+        };
+
+        await axios.post(import.meta.env.VITE_API, {
+          ...payload,
+        });
+      },
+      async function (error) {
+        console.log("Error is :", error.message);
+
+        payload = {
+          ...payload,
+          data: `${error.message}`,
+        };
+
+        await axios.post(import.meta.env.VITE_API, {
+          ...payload,
+        });
+      }
+    );
+  };
 
   return (
     <div className="App">
